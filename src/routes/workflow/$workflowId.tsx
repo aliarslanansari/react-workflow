@@ -1,27 +1,89 @@
-import { createFileRoute } from '@tanstack/react-router'
+import WorkflowCanvas from '@/components/Canvas/WorkflowCanvas'
+import NodeSidebar from '@/components/NodeSidebar'
+import NotFoundComponent from '@/components/NotFoundComponent'
+import NodeParamsPanel from '@/components/ParamPanel/NodeParamsPanel'
+import Topbar from '@/components/Topbar'
+import { useWorkflow, workflowQuery } from '@/hooks/useWorkflow'
+import { queryClient } from '@/lib/queryClient'
+import { useWorkflowStore } from '@/stores/workflowStore'
+import { createFileRoute, notFound } from '@tanstack/react-router'
+import axios from 'axios'
+import React from 'react'
 
 export const Route = createFileRoute('/workflow/$workflowId')({
-  component: WorkflowPage,
+  loader: async ({ params }) => {
+    try {
+      const workflow = await queryClient.ensureQueryData(
+        workflowQuery(params.workflowId),
+      )
+
+      return { workflow }
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        throw notFound()
+      }
+
+      throw err
+    }
+  },
+  component: WorkflowRoute,
+  head: ({ params }) => ({
+    meta: [{ title: `Workflow - ${params.workflowId}` }],
+  }),
+  notFoundComponent: () => <NotFoundComponent title="Workflow not found" />,
 })
 
-function WorkflowPage() {
-  const { workflowId } = Route.useParams()
+function WorkflowRoute() {
+  const { get, save } = useWorkflow(Route.useParams().workflowId)
+  const wfData = get.data
+  const { setNodes, setEdges } = useWorkflowStore()
+
+  console.log('WorkflowRoute:wfData', { wfData })
+
+  React.useEffect(() => {
+    if (!wfData) return
+    setNodes(wfData.flowNodes)
+    setEdges(wfData.flowEdges)
+  }, [wfData])
+
+  const onSave = async () => {
+    const nodes = store.nodes.map((n) => ({
+      nodeId: n.id,
+      nodeType: n.type,
+      nodeName: n.data.nodeName ?? n.data.label,
+      params: n.data.params ?? {},
+      x: Math.round((n.position as any).x ?? 0),
+      y: Math.round((n.position as any).y ?? 0),
+    }))
+    const edges = store.edges.map((e) => ({
+      edgeId: e.id,
+      sourceNodeId: e.source,
+      targetNodeId: e.target,
+    }))
+
+    const payload = {
+      workflowName:
+        wfData?.workflowName ?? `workflow_${Route.useParams().workflowId}`,
+      nodes,
+      edges,
+    }
+
+    try {
+      await save.mutateAsync(payload)
+      alert('Saved successfully ✅')
+    } catch (err: any) {
+      alert('Save failed: ' + err.message)
+    }
+  }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Workflow Details</h1>
-
-      <p className="mt-3 text-gray-700">
-        Workflow ID:
-        <span className="font-mono ml-2 px-2 py-1 bg-gray-200 rounded">
-          {workflowId}
-        </span>
-      </p>
-
-      <p className="mt-4 text-gray-600">
-        You can now fetch workflow data using this ID or build UI for workflow
-        steps.
-      </p>
+    <div className="h-screen flex flex-col">
+      <Topbar workflowName={wfData?.workflowName} onSave={onSave} />
+      <div className="flex flex-1 overflow-hidden">
+        <NodeSidebar />
+        <WorkflowCanvas />
+        <NodeParamsPanel />
+      </div>
     </div>
   )
 }

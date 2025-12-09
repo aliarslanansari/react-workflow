@@ -2,4 +2,14 @@
 
 import { tanstackConfig } from '@tanstack/eslint-config'
 
-export default [...tanstackConfig]
+export default [
+  ...tanstackConfig,
+  {
+    rules: {
+      'import/order': 'off',
+      '@typescript-eslint/array-type': 'off',
+      'sort-imports': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+    },
+  },
+]

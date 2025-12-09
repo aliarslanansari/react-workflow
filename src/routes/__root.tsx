@@ -1,18 +1,27 @@
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import Navbar from '../components/Header'
+// src/routes/__root.tsx
+import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from '@/lib/queryClient'
+import { ReactFlowProvider } from 'reactflow'
 
 export const Route = createRootRoute({
   component: RootLayout,
+  head: () => ({
+    meta: [{ title: 'Workflow Builder' }],
+  }),
 })
 
 function RootLayout() {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      <Navbar />
-
-      <main className="max-w-5xl mx-auto p-6">
-        <Outlet />
-      </main>
-    </div>
+    <>
+      <HeadContent />
+      <ReactFlowProvider>
+        <QueryClientProvider client={queryClient}>
+          <div className="min-h-screen bg-white">
+            <Outlet />
+          </div>
+        </QueryClientProvider>
+      </ReactFlowProvider>
+    </>
   )
 }

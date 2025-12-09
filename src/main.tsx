@@ -1,21 +1,27 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
-import { RouterProvider, createRouter } from '@tanstack/react-router'
+import { Link, RouterProvider, createRouter } from '@tanstack/react-router'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
 import './styles.css'
-import reportWebVitals from './reportWebVitals.ts'
+import { queryClient } from '@/lib/queryClient'
+import LoadingComponent from '@/components/LoadingComponent'
+import NotFoundComponent from '@/components/NotFoundComponent'
 
 // Create a new router instance
 const router = createRouter({
   routeTree,
-  context: {},
+  context: {
+    queryClient,
+  },
   defaultPreload: 'intent',
   scrollRestoration: true,
   defaultStructuralSharing: true,
   defaultPreloadStaleTime: 0,
+  defaultPendingComponent: () => <LoadingComponent />,
+  defaultNotFoundComponent: () => <NotFoundComponent />,
 })
 
 // Register the router instance for type safety
@@ -35,8 +41,3 @@ if (rootElement && !rootElement.innerHTML) {
     </StrictMode>,
   )
 }
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals()

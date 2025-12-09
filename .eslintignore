@@ -1,4 +1,9 @@
+.history
+.vscode
 node_modules
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
 .DS_Store
 dist
 dist-ssr
@@ -8,4 +13,3 @@ count.txt
 .nitro
 .tanstack
 .wrangler
-.history
