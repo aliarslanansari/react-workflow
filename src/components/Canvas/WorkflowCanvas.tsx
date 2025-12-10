@@ -28,12 +28,7 @@ export default function WorkflowCanvas({
   nodes: WFNode[]
   edges: WFEdge[]
 }) {
-  const {
-    setNodes,
-    setEdges,
-    addNode,
-    addEdge: storeAddEdge,
-  } = useWorkflowStore()
+  const { setNodes, setEdges } = useWorkflowStore()
   const { setActiveNode, setOpenParamsPanel } = useUIStore()
   const { screenToFlowPosition } = useReactFlow()
   // keep local reactflow controlled arrays in sync with store
@@ -60,10 +55,13 @@ export default function WorkflowCanvas({
     [rEdges, rNodes, setREdges],
   )
 
-  const onNodeClick = useCallback((evt: any, node) => {
-    setActiveNode(node.id)
-    setOpenParamsPanel(true)
-  }, [])
+  const onNodeClick = useCallback(
+    (_evt: any, node: Node) => {
+      setActiveNode(node.id)
+      setOpenParamsPanel(true)
+    },
+    [setActiveNode, setOpenParamsPanel],
+  )
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {

@@ -38,7 +38,7 @@ function WorkflowRoute() {
   const wfData = get.data
 
   console.log('WorkflowRoute', { wfData })
-  const { setNodes, setEdges } = useWorkflowStore()
+  const { setNodes, setEdges, nodes, edges } = useWorkflowStore()
 
   console.log('WorkflowRoute:wfData', { wfData })
 
@@ -49,15 +49,15 @@ function WorkflowRoute() {
   }, [wfData])
 
   const onSave = async () => {
-    const nodes = store.nodes.map((n) => ({
+    const newNodes = nodes.map((n) => ({
       nodeId: n.id,
       nodeType: n.type,
       nodeName: n.data.nodeName ?? n.data.label,
       params: n.data.params ?? {},
-      x: Math.round((n.position as any).x ?? 0),
-      y: Math.round((n.position as any).y ?? 0),
+      x: Math.round(n.position.x ?? 0),
+      y: Math.round(n.position.y ?? 0),
     }))
-    const edges = store.edges.map((e) => ({
+    const newEdges = edges.map((e) => ({
       edgeId: e.id,
       sourceNodeId: e.source,
       targetNodeId: e.target,
@@ -66,8 +66,8 @@ function WorkflowRoute() {
     const payload = {
       workflowName:
         wfData?.workflowName ?? `workflow_${Route.useParams().workflowId}`,
-      nodes,
-      edges,
+      flowNodes: newNodes,
+      flowEdges: newEdges,
     }
 
     try {

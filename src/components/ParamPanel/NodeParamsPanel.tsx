@@ -26,7 +26,7 @@ export default function NodeParamsPanel() {
   return (
     <aside className="w-96 p-4 bg-white border-l border-gray-200">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold">{node.data.label}</h3>
+        <h3 className="font-semibold">{nodeName}</h3>
         <button
           onClick={() => setOpenParamsPanel(false)}
           className="text-sm text-gray-500"

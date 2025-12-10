@@ -52,7 +52,7 @@ export default function NodeSidebar() {
       </div>
 
       <div className="mb-4 overflow-y-auto overflow-x-hidden h-[calc(100vh-150px)] px-4">
-        {Object.entries(nodeGroups || {}).map(([nodeType, category], index) => {
+        {Object.entries(nodeGroups || {}).map(([nodeType, category]) => {
           const filteredNodes = filterNodes(category.items || [])
           if (filteredNodes.length === 0) return null
           return (
