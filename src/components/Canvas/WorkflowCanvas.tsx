@@ -1,32 +1,34 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
-import type { Node, Connection, ReactFlowInstance } from 'reactflow'
+import ActivityNode from '@/components/CustomNodes/ActivityNode'
+import ControllerNode from '@/components/CustomNodes/ControllerNode'
+import TriggerNode from '@/components/CustomNodes/TriggerNode'
+import { useUIStore } from '@/stores/uiStore'
+import { useWorkflowStore } from '@/stores/workflowStore'
+import type { WFEdge, WFNode } from '@/stores/workflowStore'
+import { useCallback, useEffect, useRef } from 'react'
+import type { Connection, Node, ReactFlowInstance, NodeProps } from 'reactflow'
 import ReactFlow, {
-  ReactFlowProvider,
   addEdge,
-  Controls,
   Background,
-  useNodesState,
   useEdgesState,
+  useNodesState,
   useReactFlow,
 } from 'reactflow'
-import TriggerNode from '@/components/CustomNodes/TriggerNode'
-import ControllerNode from '@/components/CustomNodes/ControllerNode'
-import ActivityNode from '@/components/CustomNodes/ActivityNode'
-import { useWorkflowStore } from '@/stores/workflowStore'
-import { useUIStore } from '@/stores/uiStore'
 import CustomControls from '../CustomControls'
-import { ZoomIn } from 'lucide-react'
 
-const nodeTypes = {
+const nodeTypes: Record<string, React.ComponentType<NodeProps>> = {
   trigger: TriggerNode,
   controller: ControllerNode,
   activity: ActivityNode,
 }
 
-export default function WorkflowCanvas() {
+export default function WorkflowCanvas({
+  nodes,
+  edges,
+}: {
+  nodes: WFNode[]
+  edges: WFEdge[]
+}) {
   const {
-    nodes,
-    edges,
     setNodes,
     setEdges,
     addNode,
@@ -90,6 +92,8 @@ export default function WorkflowCanvas() {
         },
       }
 
+      console.log({ newNode })
+
       setRNodes((nds) => nds.concat(newNode))
     },
     [screenToFlowPosition],
@@ -117,6 +121,10 @@ export default function WorkflowCanvas() {
         fitView
         onNodeClick={onNodeClick}
         proOptions={{ hideAttribution: true }}
+        snapToGrid={true}
+        defaultEdgeOptions={{
+          type: 'smoothstep',
+        }}
       >
         <Background />
       </ReactFlow>

@@ -36,6 +36,8 @@ export const Route = createFileRoute('/workflow/$workflowId')({
 function WorkflowRoute() {
   const { get, save } = useWorkflow(Route.useParams().workflowId)
   const wfData = get.data
+
+  console.log('WorkflowRoute', { wfData })
   const { setNodes, setEdges } = useWorkflowStore()
 
   console.log('WorkflowRoute:wfData', { wfData })
@@ -78,10 +80,13 @@ function WorkflowRoute() {
 
   return (
     <div className="h-screen flex flex-col">
-      <Topbar workflowName={wfData?.workflowName} onSave={onSave} />
+      <Topbar workflowId={wfData?.workflowName} onSave={onSave} />
       <div className="flex flex-1 overflow-hidden">
         <NodeSidebar />
-        <WorkflowCanvas />
+        <WorkflowCanvas
+          nodes={wfData?.flowNodes || []}
+          edges={wfData?.flowEdges || []}
+        />
         <NodeParamsPanel />
       </div>
     </div>

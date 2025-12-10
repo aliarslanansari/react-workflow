@@ -1,6 +1,8 @@
 import { TextInput } from '@/components/ui/TextInput'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { WorkflowIcon } from 'lucide-react'
+import { VITE_DEFAULT_WORKFLOW_ID } from '@/config/env'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -31,21 +33,25 @@ function HomePage() {
           to="/workflow/$workflowId"
           params={{ workflowId: workflowId }}
           preload={false}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-700 flex items-center gap-2 justify-center"
         >
+          <WorkflowIcon size={16} />
           Go to workflow
         </Link>
       </div>
       <div className="border-b mt-10 border-gray-300" />
-      <div className="mt-10">
-        <Link
-          to="/workflow/$workflowId"
-          params={{ workflowId: 'twflow_5046391f58_ali' }}
-          className="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-700"
-        >
-          Go to twflow_5046391f58_ali Workflow
-        </Link>
-      </div>
+      {VITE_DEFAULT_WORKFLOW_ID && (
+        <div className="mt-10">
+          <Link
+            to="/workflow/$workflowId"
+            params={{ workflowId: VITE_DEFAULT_WORKFLOW_ID }}
+            className="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-700 flex items-center gap-2 justify-center"
+          >
+            Go to {VITE_DEFAULT_WORKFLOW_ID} Workflow
+            <WorkflowIcon size={16} />
+          </Link>
+        </div>
+      )}
     </div>
   )
 }

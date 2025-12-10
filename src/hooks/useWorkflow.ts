@@ -1,3 +1,4 @@
+import dagre from '@dagrejs/dagre'
 import { ENDPOINTS } from '@/config/api'
 import { QUERY_KEYS } from '@/config/queryKeys'
 import { apiClient } from '@/lib/apiClient'
@@ -9,25 +10,58 @@ import type {
 } from '@/types/api'
 import { useQuery, useMutation } from '@tanstack/react-query'
 
-function transformNodes(apiNodes: Record<string, WorkflowNode>) {
+function transformNodes(
+  apiNodes: Record<string, WorkflowNode>,
+  edges: WorkflowEdgeResponse[],
+) {
   const nodeArray = Object.values(apiNodes)
 
-  return nodeArray.map((n, index) => ({
-    id: n.nodeId,
-    type: n.nodeType.toLowerCase(),
-    position: {
-      x: 250 * index,
-      y: 150,
-    },
-    data: {
-      label: n.nodeName,
-      nodeName: n.activityName,
-      params: n.nodeParams?.params ?? {},
-      inputs: n.nodeInputs ?? {},
-      timeout: n.startToCloseTimeoutInMinutes,
-      raw: n,
-    },
-  }))
+  const dagreGraph = new dagre.graphlib.Graph()
+  dagreGraph.setGraph({ rankdir: 'TB' })
+  dagreGraph.setDefaultEdgeLabel(() => ({}))
+
+  nodeArray.forEach((n) => {
+    dagreGraph.setNode(n.nodeId, { width: 150, height: 100 })
+  })
+
+  const nodeIds = new Set(nodeArray.map((n) => n.nodeId))
+
+  edges.forEach((e) => {
+    if (nodeIds.has(e.fromNodeId) && nodeIds.has(e.toNodeId)) {
+      dagreGraph.setEdge(e.fromNodeId, e.toNodeId)
+    } else {
+      console.warn(
+        'Skipping edge with missing node:',
+        e.fromNodeId,
+        '→',
+        e.toNodeId,
+      )
+    }
+  })
+
+  console.log({ dagreGraph })
+
+  dagre.layout(dagreGraph)
+
+  return nodeArray.map((n) => {
+    const dagreNode = dagreGraph.node(n.nodeId)
+    return {
+      id: n.nodeId,
+      type: n.nodeType.toLowerCase(),
+      position: {
+        x: dagreNode.x - 75, // Center: width/2 = 150/2
+        y: dagreNode.y - 25, // Center: height/2 = 50/2
+      },
+      data: {
+        label: n.nodeName,
+        nodeName: n.activityName,
+        params: n.nodeParams?.params ?? {},
+        inputs: n.nodeInputs ?? {},
+        timeout: n.startToCloseTimeoutInMinutes,
+        raw: n,
+      },
+    }
+  })
 }
 
 function transformEdges(apiEdges: WorkflowEdgeResponse[]) {
@@ -35,7 +69,6 @@ function transformEdges(apiEdges: WorkflowEdgeResponse[]) {
     id: e.edgeName,
     source: e.fromNodeId,
     target: e.toNodeId,
-    label: e.edgeName,
   }))
 }
 
@@ -80,12 +113,13 @@ export const workflowQuery = (workflowId: string) => ({
     )
 
     const api = res.data
+    const flowEdges = transformEdges(api.definition.edges)
 
     return {
       workflowName: api.workflowId,
       raw: api,
-      flowNodes: transformNodes(api.definition.nodes),
-      flowEdges: transformEdges(api.definition.edges),
+      flowNodes: transformNodes(api.definition.nodes, api.definition.edges),
+      flowEdges,
     }
   },
 })

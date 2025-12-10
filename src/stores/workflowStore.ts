@@ -1,8 +1,8 @@
 import { create } from 'zustand'
 import type { Node, Edge } from 'reactflow'
 
-type WFNode = Node
-type WFEdge = Edge
+export type WFNode = Node
+export type WFEdge = Edge
 
 type WorkflowState = {
   nodes: WFNode[]

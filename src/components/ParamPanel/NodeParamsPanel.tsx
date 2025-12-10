@@ -24,7 +24,7 @@ export default function NodeParamsPanel() {
   }
 
   return (
-    <aside className="w-96 p-4 bg-white border-l">
+    <aside className="w-96 p-4 bg-white border-l border-gray-200">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold">{node.data.label}</h3>
         <button

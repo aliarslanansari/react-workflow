@@ -1,29 +1,33 @@
-import { useWorkflowStore } from '@/stores/workflowStore'
+import { Save, Undo, Redo } from 'lucide-react'
 
-export default function Topbar({
-  workflowName,
-  onSave,
-}: {
-  workflowName?: string
+interface NavbarProps {
   onSave: () => void
-}) {
-  const { nodes, edges } = useWorkflowStore()
+  workflowId?: string
+}
 
+export default function Topbar({ onSave, workflowId }: NavbarProps) {
   return (
-    <div className="w-full flex items-center justify-between bg-white p-3 border-b">
-      <div className="text-lg font-semibold">
-        {workflowName ?? 'Workflow editor'}
+    <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+      <div className="flex items-center gap-4">
+        <div>
+          <div className="text-gray-900">Workflow Editor</div>
+          <div className="text-xs text-gray-500">{workflowId}</div>
+        </div>
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="text-sm text-gray-500">
-          Nodes: {nodes.length} Edges: {edges.length}
-        </div>
+        <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+          <Undo className="w-5 h-5 text-gray-600" />
+        </button>
+        <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+          <Redo className="w-5 h-5 text-gray-600" />
+        </button>
         <button
           onClick={onSave}
-          className="px-3 py-1 bg-blue-600 text-white rounded"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
         >
-          Save
+          <Save className="w-4 h-4" />
+          Save Workflow
         </button>
       </div>
     </div>
